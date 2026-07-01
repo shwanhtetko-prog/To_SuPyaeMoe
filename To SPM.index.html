@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- (၁) Browser Tab မှာ ပေါ်မယ့် Title ကို ပြင်ရန် -->
+    <title>မင်းအတွက် သီးသန့် စာလေးတစ်စောင် 💖</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Myanmar Unicode and Romantic fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Pyidaungsu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pyidaungsu', 'Playfair Display', serif;
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 50%, #ffb3c6 100%);
+            overflow-x: hidden;
+        }
+
+        /* Floating Hearts Animation */
+        .heart {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 6s linear infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Envelope transition styles */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+        
+        .envelope {
+            position: relative;
+            transition: transform 0.5s ease;
+        }
+
+        /* Sparkle effect */
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .sparkler {
+            animation: sparkle 2s infinite ease-in-out;
+        }
+
+        /* Slide Animation for Pages */
+        .page-container {
+            display: none;
+            animation: slideIn 0.5s forwards ease-out;
+        }
+        .page-container.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Custom rotation for music icon when playing */
+        .spinning {
+            animation: spin 4s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative p-4 overflow-hidden select-none">
+
+    <!-- REAL AUDIO ELEMENT -->
+    <!-- (A) အောက်က src="ယူနီကုတ်/လင့်ခ်" နေရာမှာ သင့်စိတ်ကြိုက် သီချင်း MP3 link ကို အစားထိုးနိုင်ပါတယ် -->
+    <audio id="bgMusic" loop>
+        <source src="https://s-gummy-you-are-my-everything.mp3.pm" type="audio/mpeg">
+        သင့် Browser သည် သီချင်းဖွင့်စနစ်ကို မထောက်ပံ့ပါဦး။
+    </audio>
+
+    <!-- Music Toggle Button -->
+    <div class="absolute top-4 right-4 z-50">
+        <button id="musicToggle" class="bg-white/80 backdrop-blur-md p-3 rounded-full shadow-lg text-rose-500 hover:scale-115 transition-transform duration-300 flex items-center justify-center">
+            <svg id="musicIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+            <span id="musicStatus" class="text-[10px] ml-1 font-bold hidden sm:inline">Music Off</span>
+        </button>
+    </div>
+
+    <!-- Soft Ambient Lights -->
+    <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-80 h-80 bg-rose-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" style="animation-delay: 2s;"></div>
+
+    <!-- MAIN ENVELOPE (Shown at first) -->
+    <div id="envelopeSection" class="w-full max-w-md z-10 transition-all duration-1000 transform scale-100">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-rose-600 mb-2 drop-shadow-sm">🤍 To / Su Pyae Moe 🤍 </h1>
+            <p class="text-gray-600 text-sm">ဖွင့်ဖတ်ကြည့်ဖို့ စာအိတ်လေးကို နှိပ်လိုက်ပါနော် 💌 </p>
+        </div>
+
+        <div class="envelope-wrapper flex justify-center cursor-pointer" onclick="openLetter()">
+            <div class="envelope w-72 h-52 bg-rose-100 rounded-b-xl shadow-2xl relative border-2 border-rose-200 hover:scale-105 transition-all duration-300">
+                <div id="flap" class="absolute top-0 left-0 w-full h-0 border-t-[110px] border-t-rose-400 border-x-[144px] border-x-transparent origin-top transition-all duration-500 z-30"></div>
+                
+                <div class="absolute top-4 left-4 right-4 bottom-2 bg-white rounded-md shadow-inner flex flex-col items-center justify-center p-4 z-10">
+                    <div class="text-rose-500 animate-bounce">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-0 left-0 w-full h-28 bg-rose-200/90 rounded-b-xl z-20 border-t border-rose-300"></div>
+                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-500 hover:bg-red-600 text-white rounded-full p-4 shadow-lg z-40 transition-transform duration-300 hover:scale-110">
+                    <span class="text-xl">❤️</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center mt-8">
+            <span class="sparkler text-rose-500 text-3xl">✨</span>
+            <span class="sparkler text-rose-400 text-2xl mx-4" style="animation-delay: 0.5s;">💖</span>
+            <span class="sparkler text-rose-500 text-3xl" style="animation-delay: 1s;">✨</span>
+        </div>
+    </div>
+
+    <!-- THE STORYBOOK CARD -->
+    <div id="confessionSection" class="hidden w-full max-w-lg z-10 mx-auto px-4 transform translate-y-10 opacity-0 transition-all duration-1000">
+        <div class="bg-white/85 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-2xl border border-white/50 relative">
+            
+            <div class="w-full bg-pink-100 h-1.5 rounded-full mb-6 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-pink-400 to-rose-500 h-full w-[14.28%] transition-all duration-300"></div>
+            </div>
+
+            <!-- ==================== PAGE 1 (To Be Honest…) ==================== -->
+            <div id="page1" class="page-container active text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[-1.5deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">👋🌸</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၁)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၁ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4">Hey... Do u know? </h2>
+                <!-- 🌟 [စာမျက်နှာ ၁ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    Acc စအပ်တုန်းက လက်ခံပါ့မလားဆိုပြီး စိုးရိမ်ခဲ့ရတယ် … Acc လက်ခံပြီးတော့လည်း စကားစပြောရင် Reply ပြန်လာပါ့မလားဆိုပြီး စိုးရိမ်ခဲ့ရတယ် … Reply ပြန်လာတဲ့အခါကျတော့လည်း ဖွင့်ပြောလိုက်ရင် အငြင်းခံရမလားဆိုပြီး ထပ်စိုးရိမ်ရပြန်တယ် …
+အခုတော့ အဲ့ဒီစိုးရိမ်မှုတွေကို အဆုံးသတ်တော့မယ် …
+                </p>
+            </div>
+
+            <!-- ==================== PAGE 2 (🌙 But…) ==================== -->
+            <div id="page2" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[2deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">👀💓</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၂)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၂ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4">ရိုးသားစွာ ဝန်ခံပါရစေ... </h2>
+                <!-- 🌟 [စာမျက်နှာ ၂ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    အစ္စလာမ်မှာ လက်တွဲဖော်နဲ့ပတ်သက်လာရင် အချိန်ဆွဲနေခြင်းထက် ရိုးသားစွာ ချဉ်းကပ်ခြင်းက ပိုပြီး ဗရ်ကသ်ရှိတယ်တဲ့ … 
+                    Acc လာအပ်တဲ့နေ့ကစပြီး အခုချိန်ထိ စကားလာပြောနေရတဲ့ အဓိကအကြောင်းရင်းက… ညီမကို သဘောကျလို့ဆိုတာ ရိုးသားစွာ ဝန်ခံပါရစေ …
+                </p>
+            </div>
+
+            <!-- ==================== PAGE 3 (💭 Little By Little…) ==================== -->
+            <div id="page3" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[-2deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">📸☕</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၃)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၃ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4"><သဘောကျတယ်/h2>
+                <!-- 🌟 [စာမျက်နှာ ၃ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    ညီမနဲ့ စကားပြောတိုင်း ညီမအကြောင်း ပိုသိလာရတယ် … ပိုသိလာလေလေ ပိုသိချင်လာလေလေ ဖြစ်လာတယ် … ညီမရဲ့ စကားပြောပုံလေးကို သဘောကျတယ် ... ညီမရဲ့ ပုံစံလေးကို သဘောကျတယ် ...
+
+                </p>
+            </div>
+
+            <!-- ==================== PAGE 4 (Then I Realized…) ==================== -->
+            <div id="page4" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[1.5deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">☁️🌈</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၄)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၄ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4">သဘောကျတာထက် ပိုတယ်</h2>
+                <!-- 🌟 [စာမျက်နှာ ၄ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    အချိန်တိုင်း ဖုန်းကို ခဏခဏ ကြည့်မိနေတယ် … Message လေးများ ဝင်လာမလားလို့လေ … သို့ပေမယ့် သူလေးက ချေတယ် … Notiလေး တစ်ခုတက်လာရင် ညီမဖြစ်ပါစေလို့ ဆုတောင်းရတာ အမော … Reply လေးလာရင် ပျော်တယ် … မလာရင်လည်း စောင့်နေမိပြန်တယ် … အဲ့ဒီအချိန်မှာပဲ ညီမအပေါ်ထားတဲ့ ခံစားချက်တွေက ရိုးရိုးသဘောကျတာထက် ပိုနေပြီဆိုတာ သတိထားမိခဲ့တယ်… 
+              </p>
+            </div>
+
+            <!-- ==================== PAGE 5 (L=The Light of Life) ==================== -->
+            <div id="page5" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[-1deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">☀️🌻</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၅)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၅ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4">ကိုယ့်ဘဝရဲ့ အလင်းရောင် 💛</h2>
+                <!-- 🌟 [စာမျက်နှာ ၅ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    ညီမကို စသိတဲ့အချိိန်ကစပြီးး အရာရာတိုင်းဟာ ပိုပြီး အဓိပ္ပာယ်ရှိလာခဲ့ပါတယ် ... ပျင်းစရာကောင်းတဲ့ နေ့ရက်တွေကလည်း စိုပြေလာပြီး၊ ညီမရဲ့ တည်ရှိမှုလေးကတင် အကို့အတွက်တော့ တကယ့်ကို အဖိုးမဖြတ်နိုင်တဲ့ ဆုလာဘ်တစ်ခုပါပဲ...
+                </p>
+            </div>
+
+            <!-- ==================== PAGE 6 (🌹 One More Thing…) ==================== -->
+            <div id="page6" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[2deg] w-48 border border-gray-100">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">💌🔥</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၆)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၆ ခေါင်းစဉ် ပြင်ရန်နေရာ] -->
+                <h2 class="text-2xl font-bold text-rose-600 mb-4"></h2>
+                <!-- 🌟 [စာမျက်နှာ ၆ အသေးစိတ်စာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 leading-relaxed text-[16px] min-h-[140px]">
+                    အဖြေကို ချက်ချင်းမတောင်းပါဘူး။ အကို့အကြောင်း လေ့လာချင်တယ်ဆိုရင် အချိန်ယူနိုင်ပါတယ်။ အကို့ဘက်က စောင့်ပေးဖို့ အဆင်သင့်ပါပဲ။
+                </p>
+            </div>
+
+            <!-- ==================== PAGE 7 (❤️ Finally…) ==================== -->
+            <div id="page7" class="page-container text-center">
+                <div class="flex justify-center mb-5">
+                    <div class="bg-white p-3 pb-5 rounded shadow-lg rotate-[1deg] w-48 border border-gray-100 animate-bounce">
+                        <div class="w-full h-32 bg-pink-50 rounded flex items-center justify-center text-5xl">💍💐</div>
+                        <div class="text-center mt-2 text-rose-500 font-bold text-xs">စာမျက်နှာ (၇)</div>
+                    </div>
+                </div>
+                <!-- 🌟 [စာမျက်နှာ ၇ အဓိကမေးခွန်း ပြင်ရန်နေရာ] -->
+                <h2 class="text-xl font-bold text-rose-600 mb-2">အကို့ဘဝရဲ့လက်တွဲဖော် ဖြစ်ပေးမယ်မလား?</h2>
+                <!-- 🌟 [စာမျက်နှာ ၇ အောက်ကစာသား ပြင်ရန်နေရာ] -->
+                <p class="text-gray-700 text-[15px] leading-relaxed mb-4 min-h-[50px]">
+                    ညီမကို သဘောကျပါတယ်။ သေချာစဉ်းစားပြီးမှ အဖြေပေးပါနော်… 👉👈
+                </p>
+
+                <!-- INTERACTIVE BUTTONS -->
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mt-4 relative min-h-[75px]" id="actionButtons">
+                    <button id="yesBtn" onclick="celebrateLove()" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold rounded-full shadow-lg hover:shadow-rose-400/50 transform hover:-translate-y-0.5 transition-all duration-300 text-md flex items-center justify-center gap-2">
+                        <span>အင်း...စဉ်းစားပေးမယ်💖</span>
+                    </button>
+                    <button id="noBtn" class="w-full sm:w-auto px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-full shadow-md transition-all duration-300 text-sm whitespace-nowrap">
+                        မစဉ်းစားပေးဘူး 🥺
+                    </button>
+                </div>
+            </div>
+
+            <!-- BOOK NAVIGATION CONTROLS -->
+            <div class="flex justify-between items-center mt-8 pt-4 border-t border-rose-100">
+                <button id="prevBtn" onclick="navigatePage(-1)" class="px-4 py-2 text-rose-500 font-bold hover:bg-pink-50 rounded-lg transition-all duration-200 flex items-center gap-1 disabled:opacity-30 disabled:pointer-events-none">
+                    ⬅️ နောက်သို့
+                </button>
+                <span id="pageIndicator" class="text-sm font-semibold text-rose-400">စာမျက်နှာ ၁ / ၇</span>
+                <button id="nextBtn" onclick="navigatePage(1)" class="px-4 py-2 bg-rose-500 text-white font-bold hover:bg-rose-600 rounded-lg transition-all duration-200 flex items-center gap-1 shadow-md hover:shadow-rose-300">
+                    ရှေ့သို့ ➡️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CELEBRATION MODAL -->
+    <div id="celebrationModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl border-4 border-rose-400 transform scale-90 transition-all duration-500" id="celebrationCard">
+            <div class="flex justify-center mb-4">
+                <span class="text-7xl animate-ping absolute opacity-40">💖</span>
+                <span class="text-7xl relative">💖</span>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-rose-600 mb-2">OMG! တကယ်ကြီးလားဟင်? 😍</h3>
+            <p class="text-gray-700 leading-relaxed mb-6">
+                ဒီနေ့ဟာ ကိုယ့်အတွက်တော့ အပျော်ရဆုံး နေ့ရက်လေးပါပဲ။ အမြဲတမ်း ပျော်ရွှင်အောင် ထားပါ့မယ်လို့ ကတိပေးပါတယ်နော်။ 👩‍❤️‍👨
+            </p>
+            
+            <div class="bg-pink-50 rounded-2xl p-4 border border-pink-200 mb-6">
+                <span class="text-sm text-rose-500 font-semibold block mb-1">Our Special Memory Started On</span>
+                <span id="currentDate" class="text-lg font-bold text-rose-700"></span>
+            </div>
+
+            <button onclick="closeCelebration()" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-xl shadow-lg hover:shadow-pink-300/50 hover:scale-105 transition-transform">
+                စိတ်ချပါနော် 😘
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Music Player Controls
+        const myAudio = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
+        const musicIcon = document.getElementById('musicIcon');
+        const musicStatus = document.getElementById('musicStatus');
+        let isPlaying = false;
+
+        function togglePlay() {
+            if (isPlaying) {
+                myAudio.pause();
+                musicIcon.classList.remove('spinning');
+                musicStatus.innerText = "Music Off";
+            } else {
+                myAudio.play().then(() => {
+                    musicIcon.classList.add('spinning');
+                    musicStatus.innerText = "Music On";
+                }).catch(error => {
+                    console.log("Audio play failed: ", error);
+                });
+            }
+            isPlaying = !isPlaying;
+        }
+
+        musicToggle.addEventListener('click', togglePlay);
+
+        // Generate Floating Hearts on Background
+        function createHeart() {
+            const heartIcons = ['💖', '❤️', '💕', '🌸', '✨', '💘'];
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerText = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = Math.random() * 20 + 15 + 'px';
+            const duration = Math.random() * 4 + 4;
+            heart.style.animationDuration = duration + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => { heart.remove(); }, duration * 1000);
+        }
+
+        setInterval(createHeart, 500);
+
+        // Open Envelope transition and Autoplay music
+        function openLetter() {
+            const flap = document.getElementById('flap');
+            const envelopeSection = document.getElementById('envelopeSection');
+            const confessionSection = document.getElementById('confessionSection');
+
+            // Autoplay music when envelope clicked
+            if (!isPlaying) {
+                togglePlay();
+            }
+
+            flap.style.transform = 'rotateX(180deg)';
+            flap.style.zIndex = '10';
+
+            setTimeout(() => {
+                envelopeSection.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    envelopeSection.classList.add('hidden');
+                    confessionSection.classList.remove('hidden');
+                    confessionSection.offsetHeight;
+                    confessionSection.classList.remove('translate-y-10', 'opacity-0');
+                    confessionSection.classList.add('translate-y-0', 'opacity-100');
+                    updatePageControls();
+                }, 400);
+            }, 600);
+        }
+
+        // --- PAGE SLIDING/TURNING LOGIC (7 PAGES) ---
+        let currentPage = 1;
+        const totalPages = 7;
+
+        function navigatePage(direction) {
+            const activePageEl = document.getElementById(`page${currentPage}`);
+            activePageEl.classList.remove('active');
+
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const newPageEl = document.getElementById(`page${currentPage}`);
+            newPageEl.classList.add('active');
+
+            updatePageControls();
+        }
+
+        function updatePageControls() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageIndicator = document.getElementById('pageIndicator');
+            const progressBar = document.getElementById('progressBar');
+
+            const progressPercent = (currentPage / totalPages) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            pageIndicator.innerText = `စာမျက်နှာ ${currentPage} / ${totalPages}`;
+
+            if (currentPage === 1) {
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.disabled = false;
+            }
+
+            if (currentPage === totalPages) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+
+        // Playful No Button Logic
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        let noCount = 0;
+        
+        const sweetExcuses = [
+            "စဉ်းစားဦးလေ...🥺",
+            "တကယ်ကြီးလား? 😭",
+            "ပြန်မေးမယ်နော် ❤️",
+            "မရဘူး... Yes ပဲ နှိပ်တော့နော် 💕",
+            "ပြေးမလွတ်ပါဘူးနော် 😜"
+        ];
+
+        function moveNoButton() {
+            noBtn.innerText = sweetExcuses[noCount % sweetExcuses.length];
+            noCount++;
+
+            const scaleFactor = Math.min(1 + (noCount * 0.12), 2.2);
+            yesBtn.style.transform = `scale(${scaleFactor})`;
+            
+            const x = (Math.random() - 0.5) * 160;
+            const y = (Math.random() - 0.5) * 80;
+            
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        noBtn.addEventListener('mouseenter', moveNoButton);
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // Celebrate Love
+        function celebrateLove() {
+            for (let i = 0; i < 40; i++) {
+                setTimeout(createHeart, i * 50);
+            }
+
+            const dateSpan = document.getElementById('currentDate');
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            dateSpan.innerText = new Date().toLocaleDateString('my-MM', options);
+
+            const modal = document.getElementById('celebrationModal');
+            const card = document.getElementById('celebrationCard');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-90');
+                card.classList.add('scale-100');
+            }, 50);
+        }
+
+        function closeCelebration() {
+            const modal = document.getElementById('celebrationModal');
+            modal.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
